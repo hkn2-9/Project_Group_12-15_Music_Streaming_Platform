@@ -12,7 +12,7 @@ body {
 /* Page layout */
 .app-layout {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 260px 1fr;
   min-height: 100vh;
 }
 
@@ -20,15 +20,17 @@ body {
   background: #000;
   padding: 24px;
   border-right: 1px solid #222;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
 }
 
 .title {
   color: #bfa4f3;
-  margin: 0 0 32px;
-  font-size: 24px;
   text-align: center;
-  font-size: 36px;
-  margin: 24px 0 32px;
+  font-size: 30px;
+  margin: 8px 0 28px;
 }
 
 .sidebar-nav {
@@ -51,7 +53,7 @@ body {
   padding: 32px;
   min-width: 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
 }
 
@@ -74,9 +76,15 @@ body {
 .track {
   display: flex;
   align-items: center;
+  gap: 8px;
   padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.track > span {
+  flex: 1;
+  min-width: 0;
 }
 
 .track:hover {
@@ -325,13 +333,357 @@ body {
   color: #777;
 }
 
+/* Save-to-library heart */
+.heart-btn {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 20px;
+  line-height: 1;
+  padding: 4px;
+  cursor: pointer;
+  opacity: 0.6;
+}
+
+.heart-btn:hover,
+.heart-btn.saved {
+  opacity: 1;
+}
+
+.heart-btn.saved {
+  color: #bfa4f3;
+}
+
+.track.active .heart-btn.saved {
+  color: #000;
+}
+
+.now-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.now-head .now-title {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+
+/* Sidebar: library and recently played */
+.sidebar-section {
+  margin-bottom: 28px;
+}
+
+.sidebar-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin: 0 0 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+}
+
+.sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  border-radius: 8px;
+}
+
+.sidebar-item:hover {
+  background: #161616;
+}
+
+.sidebar-item.active {
+  background: #1f1a2b;
+}
+
+.sidebar-play {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 8px 10px;
+  background: none;
+  border: none;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sidebar-item.active .sidebar-title {
+  color: #bfa4f3;
+}
+
+.sidebar-title,
+.sidebar-artist {
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-artist {
+  font-size: 12px;
+  color: #888;
+}
+
+.sidebar-remove,
+.sidebar-clear {
+  background: none;
+  border: none;
+  color: #777;
+  font: inherit;
+  cursor: pointer;
+}
+
+.sidebar-remove {
+  padding: 8px 10px;
+  opacity: 0;
+}
+
+.sidebar-item:hover .sidebar-remove,
+.sidebar-remove:focus-visible {
+  opacity: 1;
+}
+
+.sidebar-remove:hover,
+.sidebar-clear:hover {
+  color: #fff;
+}
+
+.sidebar-clear {
+  font-size: 12px;
+  font-weight: 400;
+  padding: 0;
+}
+
+.sidebar-empty {
+  margin: 0;
+  font-size: 13px;
+  color: #666;
+}
+
+.sidebar-play:focus-visible,
+.sidebar-remove:focus-visible,
+.sidebar-clear:focus-visible,
+.heart-btn:focus-visible {
+  outline: 2px solid #bfa4f3;
+  outline-offset: 2px;
+}
+
+@media (hover: none) {
+  .sidebar-remove {
+    opacity: 1;
+  }
+}
+
 @media (max-width: 700px) {
   .app-layout {
     grid-template-columns: 1fr;
   }
 
   .sidebar {
+    position: static;
+    height: auto;
     border-right: none;
     border-bottom: 1px solid #222;
   }
+}
+
+/* Playlists: list header in the main card */
+.list-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 0 12px;
+}
+
+.list-title {
+  margin: 0;
+  font-size: 18px;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-shrink: 0;
+}
+
+.list-back {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #bfa4f3;
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.list-back:hover {
+  color: #d0b3ff;
+}
+
+.list-play {
+  padding: 6px 18px;
+  background: #bfa4f3;
+  color: #000;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.list-play:hover {
+  background: #d0b3ff;
+}
+
+.list-empty {
+  margin: 8px 0 0;
+  color: #777;
+}
+
+/* Playlists: the + menu on songs */
+.playlist-add {
+  position: relative;
+  display: flex;
+}
+
+.plus-btn {
+  font-size: 22px;
+}
+
+.playlist-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 20;
+  width: 240px;
+  padding: 10px;
+  background: #1b1b1b;
+  border: 1px solid #333;
+  border-radius: 10px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  cursor: default;
+}
+
+.playlist-menu ul {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.playlist-menu-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #888;
+}
+
+.playlist-menu-empty {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #777;
+}
+
+.playlist-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 6px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.playlist-menu-item:hover {
+  background: #2a2a2a;
+}
+
+.playlist-check {
+  width: 16px;
+  color: #bfa4f3;
+}
+
+.playlist-menu-new,
+.playlist-new {
+  display: flex;
+  gap: 6px;
+}
+
+.playlist-new {
+  margin-bottom: 10px;
+}
+
+.playlist-menu-new input,
+.playlist-new input {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 9px;
+  background: #111;
+  border: 1px solid #333;
+  border-radius: 6px;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+}
+
+.playlist-menu-new input:focus,
+.playlist-new input:focus {
+  outline: none;
+  border-color: #bfa4f3;
+}
+
+.playlist-menu-new button,
+.playlist-new button {
+  padding: 6px 12px;
+  background: #bfa4f3;
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.playlist-menu-new button:hover,
+.playlist-new button:hover {
+  background: #d0b3ff;
+}
+
+.plus-btn:focus-visible,
+.playlist-menu-item:focus-visible,
+.playlist-menu-new button:focus-visible,
+.playlist-new button:focus-visible,
+.list-back:focus-visible,
+.list-play:focus-visible {
+  outline: 2px solid #bfa4f3;
+  outline-offset: 2px;
 }

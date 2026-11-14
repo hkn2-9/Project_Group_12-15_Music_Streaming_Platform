@@ -1,6 +1,11 @@
+// client/src/Player.jsx  (complete file, replaces your current Player.jsx)
+// Plays audio files from the server. The song list, library, and playlists come from App.js.
+
 import { useEffect, useRef, useState } from "react";
-import axios from "axios";
 import Reviews from "./Reviews";
+import AddToPlaylist from "./AddToPlaylist";
+
+const API = "http://localhost:8000";
 
 function formatTime(seconds) {
   if (!seconds || isNaN(seconds)) return "0:00";
@@ -11,24 +16,30 @@ function formatTime(seconds) {
   return `${m}:${s}`;
 }
 
-function Player() {
-  const [tracks, setTracks] = useState([]);
+function Player({
+  tracks,
+  library,
+  playlists,
+  playRequest,
+  listTitle,
+  isPlaylist,
+  onBack,
+  onPlayed,
+  onToggleLibrary,
+  onTogglePlaylist,
+  onCreatePlaylist,
+}) {
   const [current, setCurrent] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [duration, setDuration] = useState(0);
   const audioRef = useRef(null);
 
-  useEffect(() => {
-    axios
-      .get("http://localhost:8000/api/tracks", { withCredentials: true })
-      .then((res) => setTracks(res.data));
-  }, []);
-
   const playTrack = async (track) => {
     const audio = audioRef.current;
     setCurrent(track);
-    audio.src = `http://localhost:8000/audio/${encodeURIComponent(track.filename)}`;
+    onPlayed(track); // adds it to "Recently played"
+    audio.src = `${API}/audio/${encodeURIComponent(track.filename)}`;
     audio.load();
     try {
       await audio.play();
@@ -37,6 +48,12 @@ function Player() {
     }
   };
 
+  // The sidebar asked for a song to be played.
+  useEffect(() => {
+    if (playRequest) playTrack(playRequest.track);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playRequest]);
+
   const togglePlay = () => {
     const audio = audioRef.current;
     if (!current) return;
@@ -44,6 +61,7 @@ function Player() {
     else audio.pause();
   };
 
+  // Next/previous move through the list on screen (all songs, or the open playlist).
   const currentIndex = tracks.findIndex((t) => t.id === current?.id);
 
   const playNext = () => {
@@ -67,8 +85,43 @@ function Player() {
     audioRef.current.currentTime = Number(e.target.value);
   };
 
-    return (
+  const isSaved = (track) => library.includes(track.id);
+
+  const addMenu = (track) => (
+    <AddToPlaylist
+      track={track}
+      playlists={playlists}
+      onToggle={onTogglePlaylist}
+      onCreate={onCreatePlaylist}
+    />
+  );
+
+  return (
     <div className="player">
+      <div className="list-head">
+        <h2 className="list-title">{listTitle}</h2>
+        <div className="list-actions">
+          {isPlaylist && (
+            <button className="list-back" onClick={onBack}>
+              ← All songs
+            </button>
+          )}
+          {isPlaylist && tracks.length > 0 && (
+            <button className="list-play" onClick={() => playTrack(tracks[0])}>
+              Play
+            </button>
+          )}
+        </div>
+      </div>
+
+      {tracks.length === 0 && (
+        <p className="list-empty">
+          {isPlaylist
+            ? "This playlist is empty. Go to All songs and use the + on a song to add it."
+            : "No songs yet."}
+        </p>
+      )}
+
       <ul className="track-list">
         {tracks.map((t) => (
           <li
@@ -79,6 +132,17 @@ function Player() {
             <span>
               {t.title} - {t.artist}
             </span>
+            {addMenu(t)}
+            <button
+              className={`heart-btn${isSaved(t) ? " saved" : ""}`}
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleLibrary(t);
+              }}
+              aria-label={isSaved(t) ? "Remove from library" : "Save to library"}
+            >
+              {isSaved(t) ? "♥" : "♡"}
+            </button>
           </li>
         ))}
       </ul>
@@ -129,8 +193,18 @@ function Player() {
         </div>
 
         <div className="now-playing">
-          <div className="now-title">
-            {current ? current.title : "Nothing playing"}
+          <div className="now-head">
+            <div className="now-title">{current ? current.title : "Nothing playing"}</div>
+            {current && addMenu(current)}
+            {current && (
+              <button
+                className={`heart-btn${isSaved(current) ? " saved" : ""}`}
+                onClick={() => onToggleLibrary(current)}
+                aria-label={isSaved(current) ? "Remove from library" : "Save to library"}
+              >
+                {isSaved(current) ? "♥" : "♡"}
+              </button>
+            )}
           </div>
           <div className="seek-row">
             <span>{formatTime(progress)}</span>

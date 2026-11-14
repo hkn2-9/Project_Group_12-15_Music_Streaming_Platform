@@ -1,3 +1,5 @@
+// server/index.js  (complete file, replaces your current index.js)
+
 const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
@@ -28,6 +30,7 @@ app.get("/api/hello", (req, res) => {
   res.json({ message: "Server is working" });
 });
 
+// Audio files live in server/music and are served at /audio/<filename>
 app.use("/audio", express.static(path.join(__dirname, "music")));
 
 app.get("/api/tracks", async (req, res) => {
